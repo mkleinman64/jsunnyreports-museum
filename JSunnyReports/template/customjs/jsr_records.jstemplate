@@ -1,0 +1,119 @@
+var jsr_records = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#years').on('change', function() {
+	var newYear = $('#years').val();
+
+	$( "#bestDaysTableData" ).html( "" );
+	$( "#peaksReached" ).html( "" );
+	
+	loadBestDaysTableData( newYear );
+	loadReachedTableData( newYear );
+	setYearNum( newYear );
+    
+	return false; 
+	
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Load data for the recent days table.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadBestDaysTableData( y ) {
+	var file_records = jsunnyreports_jsonfiles_location + y + "/" + "dayrecords.json";
+	
+	$.getJSON( file_records, function( data_records ) {		
+		for ( i = 0; i < data_records.data.length; i++ ) {
+			
+			if ( data_records.data[i].kwh > 0 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td id='idCell'>";
+				theData += data_records.data[i].date;
+				theData += "</td>";
+				theData += "<td>";
+				theData += numeral( data_records.data[i].kwh).format(format_kwh);
+				theData += "</td>";	
+				theData += "<td>";
+				theData += numeral( data_records.data[i].peakpower).format(format_watt);
+				theData += "</td>";
+				theData += "</tr>";
+				$( "#bestDaysTableData" ).append( theData );
+			}	
+		}	
+    });
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadReachedTableData( y ) {
+	var file_records = jsunnyreports_jsonfiles_location + y + "/" + "reachedwatt.json";
+	
+	$.getJSON( file_records, function( data_records ) {	
+		for ( i = 0; i < data_records.data.length; i++ ) {
+			var theData = "";		
+			theData += "<tr>";
+			theData += "<td id='idCell'>";
+			theData += numeral(data_records.data[i].peak).format(format_watt);
+			theData += "</td>";
+			theData += "<td>";
+			theData += data_records.data[i].date;
+			theData += "</td>";	
+			theData += "<td>";
+			theData += numeral( data_records.data[i].peakpower).format(format_watt);
+			theData += "</td>";			
+			theData += "</tr>";
+			$( "#peaksReached" ).append( theData );
+		}	
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function setYearNum( yn ) {
+	$( "#yearNum" ).html( yn );
+	$( "#yearNum2" ).html( yn );
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function init() {
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		year = data_jsr.last_active_year; 
+		setYearNum( year );
+		
+		$.getJSON( file_years, function( data_years ) {	
+			for ( i=0;i<data_years.years.length; i++ ) {
+				var y = data_years.years[i];
+				var theData = "";
+				var selected = "";
+				if ( i == data_years.years.length - 1 ) {
+				   selected = "selected";
+				   
+				}	   
+				theData += "<option " + selected + ">" + y.year + "</option>"
+				$( "#years" ).append( theData );
+			}
+		});
+
+		loadBestDaysTableData( year );
+		loadReachedTableData( year );
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// doMagic() for index.html
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	init();
+	
+	displayHeader();
+	displayFooter();
+	
+	
+});
+

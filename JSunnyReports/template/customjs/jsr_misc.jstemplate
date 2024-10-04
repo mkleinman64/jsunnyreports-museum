@@ -1,0 +1,146 @@
+var jsr_misc = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadSummary() {
+
+	$.getJSON( file_summary, function( summary ) {
+		for ( i = 0; i < summary.summary.length; i++ ) {
+			var entry = summary.summary[i];
+		
+			var tr = "";
+			tr += "<tr>";
+			tr += "<td>";
+			tr += entry.item;
+			tr += "</td>";
+			tr += "<td>";
+			tr += entry.value;
+			tr += "</td>";
+			tr += "</tr>";
+			$('#summary').append(tr);
+		}	      
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadHistoric() {
+	
+	$.getJSON( file_historictable, function( historic_data ) {
+		var th = "";
+		th += "<tr>";
+		th += "<th>##caption.month##</th>";
+	   
+		for ( i = 0; i<historic_data.years.length; i++ ) {
+			th += "<th class=\"text-right\">" + historic_data.years[i] +  "</th>";
+			
+		}	   
+		th += "<th class=\"text-right\">##caption.average##</th>";
+		th += "<th class=\"text-right\">%</th>";
+		th += "</tr>";
+		
+		$('#historicheader').append( th );
+		
+		for ( month = 1; month<=12; month++ ) {
+			var monthdata = historic_data.data[month-1];
+			var tr = "";
+			
+			tr += "<tr>";
+			tr += "<td class=\"text-right\">" + monthdata.month + "</td>";
+			
+			for ( i = 0; i<monthdata.yeardata.length; i++ ) {
+				var value = "";
+
+				if ( monthdata.yeardata[i] == -1 ) {
+					value = "--";
+				} else if ( monthdata.yeardata[i] == -2 ) {
+					value = "&nbsp;"
+				} else {
+                    value = numeral(monthdata.yeardata[i]).format(format_kwh);
+				}
+				
+				tr += "<td class=\"text-right\">" + value +  "</td>";
+			}	   
+            var average 	= numeral(monthdata.average).format(format_kwh);
+			var percentage  = numeral(monthdata.percentage,1).format(format_percentage);		
+			
+			tr += "<td class=\"text-right\">" + average + "</td>";
+			tr += "<td class=\"text-right\">" + percentage + "%</td>";
+			tr += "</tr>";
+			$('#historicbody').append( tr );
+		}	
+		var totals = "";
+		total += "<tr class=\"info\">";
+		total += "<td><strong>##caption.summary##</strong></td>";
+		for ( i = 0; i<historic_data.yields.length; i++ ) {
+			total += "<td class=\"text-right\">" + numeral(historic_data.yields[i]).format(format_kwh) + "</td>";
+		}	   
+		
+		total += "<td class=\"text-right\">" + numeral(historic_data.average).format(format_kwh) + "</td>";
+		total += "<td>&nbsp;</td>";
+		
+		total += "</tr>";
+		
+		$('#historicbody').append( total );
+	});	
+}	
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadFacts() {
+	
+	$.getJSON( file_facts, function( facts ) {
+		$('#sunrise').html( facts.facts.sunrise );
+		$('#sunset').html( facts.facts.sunset );
+		$('#today').html(	numeral( facts.facts.today).format(format_kwh));
+		$('#historic').html( numeral( facts.facts.historic).format(format_kwh) );   
+		$('#total').html( numeral( facts.facts.total).format(format_kwh) );   
+		$('#co2').html( numeral( facts.facts.co2).format(format_co2) );  
+		$('#uranium').html(	numeral( facts.facts.uranium).format(format_uranium) );  
+
+		for ( i = 0; i < facts.facts.inverters.length; i++ ) {
+			var entry = facts.facts.inverters[i];
+			var tr = "";
+
+			tr += "<tr>";
+			tr += "<td>";
+			tr += entry.name;
+			tr += "</td>";
+
+			tr += "<td class='text-right'>";
+			tr += entry.wp;
+			tr += "</td>";	
+			
+			tr += "<td class='text-right'>";
+			tr += numeral( entry.kwh ).format(format_kwh);
+			tr += "</td>";
+			
+			tr += "<td class='text-right'>";
+			tr += "&euro;" + numeral( entry.savings ).format(format_currency );
+			
+			tr += "</td>";
+			
+			tr += "</tr>";
+			$('#totalinverter').append(tr);
+		}
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	
+	displayHeader();
+	displayFooter();
+
+    loadSummary();	
+	loadFacts();
+	loadHistoric();
+	
+});
+

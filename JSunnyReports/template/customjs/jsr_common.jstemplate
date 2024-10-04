@@ -1,0 +1,157 @@
+var jsr_common = '2.6.0';
+
+var jsunnyreports_jsonfiles_location = "json/"
+
+var file_base_lastupdate = jsunnyreports_jsonfiles_location + "base_lastupdate.json";
+var file_jsunnyreports   = jsunnyreports_jsonfiles_location + "jsunnyreports.json";
+var file_inverters       = jsunnyreports_jsonfiles_location + "inverters.json";
+var file_years           = jsunnyreports_jsonfiles_location + "years.json";
+var file_kwh_year        = jsunnyreports_jsonfiles_location + "kwh_year.json";
+var file_diary           = jsunnyreports_jsonfiles_location + "diary.json";
+var file_historic        = jsunnyreports_jsonfiles_location + "historicday.json";
+var file_summary         = jsunnyreports_jsonfiles_location + "summary.json";
+var file_config          = jsunnyreports_jsonfiles_location + "config.json";
+var file_facts           = jsunnyreports_jsonfiles_location + "facts.json";
+var file_historictable   = jsunnyreports_jsonfiles_location + "historytable.json";
+var file_common          = jsunnyreports_jsonfiles_location + "common.json";
+var file_recentdays      = jsunnyreports_jsonfiles_location + "recentdays.json";
+var file_recorddays      = jsunnyreports_jsonfiles_location + "dayrecords.json";
+var file_recordmonths    = jsunnyreports_jsonfiles_location + "monthrecords.json";
+var file_recordyears     = jsunnyreports_jsonfiles_location + "yearrecords.json";
+
+
+var format_kwh           = '0.00';
+var format_watt          = '0';
+var format_wp            = '0';
+var format_kwhkwp        = '0.0';
+var format_percentage    = '0.0';
+var format_currency      = '0.00';
+var format_co2           = '0.0';
+var format_uranium       = '0.0000';
+
+var chart;
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Simple round function.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function roundUp(num, precision) {
+  precision = Math.pow(10, precision)
+  return Math.ceil(num * precision) / precision
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Hex, RGB, colors.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Draw a timeseries chart.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawTimeSeries( chart, d, m, y, inverter, colorArray, chartType, prefix ) {
+	var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var s = {data: []}; 
+	
+	if ( prefix != null ) {
+		s.name = prefix + " " + inverter.name; 		
+	} else {
+		s.name = inverter.name;		
+
+	}
+	s.name = s.name.unescapeHtml();	
+	
+	for ( idx=0;idx<inverter.data.length;idx++ ) {
+
+		var hour = inverter.data[idx].h;
+		var minute = inverter.data[idx].m;
+		var second = inverter.data[idx].s;
+		
+		var graphValue = 0;
+		
+		if ( chartType == 'watt' ) {
+			graphValue = inverter.data[idx].watt;
+		}
+        else if ( chartType == 'kwhc' ) {
+			graphValue = inverter.data[idx].kwhc;
+        } 
+        else if ( chartType == 'wwp' ) {
+			graphValue = inverter.data[idx].wwp;
+        }		
+		var date = Date.UTC(y,(m-1),d,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	chart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: colorHex
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayWattPerformance( day, compare, d, m, y, prefix ) {
+	chart.yAxis[0].setTitle({ text: "##caption.watt##" });
+   
+	for ( i=0;i<day.inverterdata.length; i++ ) {
+		var color;
+		if ( compare ) {
+			color = day.inverterdata[i].comparelinecolor;
+		} else {
+			color = day.inverterdata[i].linecolor;
+        }			
+		drawTimeSeries( chart, d, m, y, day.inverterdata[i], color, "watt", prefix );
+	}	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayKWhPerformance( day, compare, d, m, y, prefix ) {
+	chart.yAxis[0].setTitle({ text: "##caption.kwh##" });
+   
+	for ( i=0;i<day.inverterdata.length; i++ ) {
+		var inverter = day.inverterdata[i];
+
+        // null ref is done to let it work with versions up to 2.0.3. ( from 2.1 with full reload it can be removed ).		
+		if ( inverter.show == 1 || inverter.show == null ) {
+			var color;
+			if ( compare ) {
+				color = inverter.comparelinecolor;
+			} else {
+				color = inverter.linecolor;
+			}			
+			drawTimeSeries( chart, d, m, y, inverter, color, "kwhc", prefix );
+		}
+	}	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayWWpPerformance( day, compare, d, m, y, prefix ) {
+	chart.yAxis[0].setTitle({ text: "##caption.wattwp##" });
+	
+	for ( i=0;i<day.inverterdata.length; i++ ) {
+		var inverter = day.inverterdata[i];
+
+        // null ref is done to let it work with versions up to 2.0.3. ( from 2.1 with full reload it can be removed ).		
+		if ( inverter.show == 1 || inverter.show == null ) {
+			var color;
+			if ( compare ) {
+				color = inverter.comparelinecolor;
+			} else {
+				color = inverter.linecolor;
+			}			
+			drawTimeSeries( chart, d, m, y, inverter, color, "wwp", prefix );
+        }		
+	}	
+}

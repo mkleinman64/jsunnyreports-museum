@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ 
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Martin Kleinman">
+
+ <title>jSunnyreports website: ##settings.website.owner##</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="dist/css/sb-admin-2.css" rel="stylesheet">
+
+
+    <!-- Custom Fonts -->
+    <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+		$$menu.htmlinclude$$
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">##day.information.title##</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+
+			
+           $$header.htmlinclude$$
+			
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i> ##day.information.chart##
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                             <div id="container_chart" style="height: 520px;"></div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+  
+                </div>
+                <!-- /.col-lg-8 -->
+                <div class="col-lg-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bell fa-fw"></i> ##day.information.recentdays##
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+							<table id="recentTableData" class="table table-bordered table-hover table-striped">
+							</table>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-2 -->
+                <div class="col-lg-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bell fa-fw"></i> ##day.information.bestdays##
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+							<table id="recordTableData" class="table table-bordered table-hover table-striped">
+							</table>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+				
+            </div>
+
+            <!-- /.row -->
+			<div class="row">
+				<div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bell fa-fw"></i> ##day.information.charttype##
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+							<form role="form" id="radioForm">
+							<div class="form-group">
+								<div class="radio">
+									<label>
+										<input type="radio" name="charttype" id="watt" value="watt" checked>##day.information.charttype.wattperformance##
+									</label>
+								</div>
+								<div class="radio">
+									<label>
+										<input type="radio" name="charttype" id="kwh" value="kwh">##day.information.charttype.kwhperformance##
+									</label>
+								</div>
+								<div class="radio">
+									<label>
+										<input type="radio" name="charttype" id="wwp" value="wwp">##day.information.charttype.wwpperformance##
+									</label>
+								</div>
+							</div>
+							</form>
+
+                        </div>
+                    </div>
+					
+                    <!-- /.panel -->
+                      
+
+				</div>
+				<div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bell fa-fw"></i> ##caption.search##
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+								<div>
+								  <form role="form" id="the-form">
+									<div class="form-group">
+										<label>##caption.date##</label>
+										<div class="input-group date">
+											<input type="text" id="datevalue" class="form-control"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+										</div>													
+
+									 </div>				
+									 <div class="form-group">
+										<button type="submit" class="btn btn-default" id="datepickbutton">##caption.select##</button>
+									 </div>											 
+								  </form>
+								</div>							
+
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+					
+					<div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bell fa-fw"></i> ##caption.inverters##
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+								<div id="container_pie" style="height: 300px;"></div>	
+								<table class="table table-bordered table-hover table-striped">
+								<thead>
+									<tr>
+										<th>##caption.inverter##</th>
+										<th class="text-right">##caption.peak##</th>
+										<th class="text-right">##caption.yield##</th>
+									</tr>
+								</thead>
+								<tbody id="inverterTable">
+								</tbody>
+							</table>
+
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>							
+					
+                    <!-- /.panel -->
+                      
+                        <!-- /.panel-footer -->
+				</div>
+
+			</div>
+			
+			
+            <!-- /.row -->
+			$$footer.htmlinclude$$
+        <!-- /#page-wrapper -->
+
+		</div>		
+
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+
+    <script src="highcharts/highcharts.js"></script>
+	<script src="highcharts/highcharts-3d.js"></script>			
+    <script src="highcharts/modules/exporting.js"></script>		
+	
+    <!-- Bootstrap Core JavaScript -->
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="dist/js/sb-admin-2.js"></script>
+	
+	<script src="numeral/numeral.min.js"></script>	
+	
+    <script src="bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="bootstrap-datepicker/locales/bootstrap-datepicker.nl.min.js" charset="UTF-8"></script>	
+
+    <!-- JSUNNYREPORTS! -->	
+    <script src="customjs/jsr_common.js"></script>
+    <script src="customjs/jsr_includes.js"></script>
+    <script src="customjs/jsr_day.js"></script>
+	
+	
+	
+</body>
+
+
+
+</html>

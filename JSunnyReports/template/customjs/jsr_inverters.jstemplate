@@ -1,0 +1,270 @@
+var jsr_inverters = '2.6.0';
+
+var chartType;
+var defaultInverter;
+var status_drawFirstYear = true;
+var status_populateAll = false;
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#the-form').on('submit', function() {
+	var invName = $('#inverter').val();
+	$('#checkboxAll').prop('checked', false);
+	status_populateAll = false;
+	defaultInverter = invName;
+
+	populateChart( invName );
+	return false; 
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#checkboxAll').on('change', function() {
+	var checked = $("#checkboxAll").prop('checked');
+
+	if ( checked ) {
+		status_populateAll = true;
+		populateAll();
+		
+	} else {
+		status_populateAll = false;
+		populateChart( defaultInverter );
+	}	
+	return false; 
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#checkboxFirstYear').on('change', function() {
+	var checked = $("#checkboxFirstYear").prop('checked');
+
+	if ( checked ) {
+		status_drawFirstYear = false;
+	} else {
+		status_drawFirstYear = true;
+	}	
+	
+	if ( status_populateAll ) {
+		populateAll();
+	}
+	else {
+		populateChart( defaultInverter );
+	}
+	
+	return false; 
+});
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart() {
+
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: 'container_chart',
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: "##inverter.chart##",
+			useHTML: true
+		},
+		subtitle: {
+			text: '',
+			useHTML: true
+		},
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			labels: {
+						rotation: -45,
+						format: '{value:%d-%m-%Y}',						
+						style: {
+									fontSize: '11px',
+									fontFamily: 'Verdana, sans-serif'
+								},
+						useHTML: true		
+					},				
+			title: {
+				text: '##caption.date##',
+				useHTML: true
+			}
+		},
+		yAxis: {
+			title: {
+				text: '##caption.kwhkwp##',
+				useHTML: true
+			},
+			min: 0
+		},
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%e. %B %Y}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	chart = new Highcharts.Chart(options);
+	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Draw a timeseries chart.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawSeries( chart, series, colorArray ) {
+	var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+
+	var s = {data: []}; 
+	s.name = series.name;		
+	s.name = s.name.unescapeHtml();	
+
+	var startIdx = 0;
+	if ( !status_drawFirstYear ) {
+		startIdx = 364;
+	} 	
+	
+	for ( idx=startIdx;idx<series.data.length;idx++ ) {
+		var year = series.data[idx].y;
+		var month = series.data[idx].mo - 1;
+		var day = series.data[idx].d;
+		var hour = series.data[idx].h;
+		var minute = series.data[idx].mi;
+		var second = series.data[idx].s;
+		
+		var graphValue = 0;
+		graphValue = series.data[idx].kwhkwp;
+		var date = Date.UTC(year,month,day,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	chart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: colorHex
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawkwhkwpSeries( chart, series, colorArray ) {
+	var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+
+	var s = {data: []}; 
+	s.name = series.name;		
+	s.name = s.name.unescapeHtml();	
+
+	var startIdx = 0;
+	
+	for ( idx=startIdx;idx<series.kwhkwpdata.length;idx++ ) {
+		var year = series.kwhkwpdata[idx].y;
+		var month = series.kwhkwpdata[idx].mo - 1;
+		var day = series.kwhkwpdata[idx].d;
+		var hour = series.kwhkwpdata[idx].h;
+		var minute = series.kwhkwpdata[idx].mi;
+		var second = series.kwhkwpdata[idx].s;
+		
+		var graphValue = 0;
+		graphValue = series.kwhkwpdata[idx].kwhkwp;
+		var date = Date.UTC(year,month,day,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	chart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: colorHex
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateAll() {
+	
+	while( chart.series.length > 0 ) {
+		chart.series[0].remove( true );
+	}	
+	
+	$.getJSON( file_inverters, function( data_inverters ) {
+		for ( i = 0; i < data_inverters.inverters.length; i++) {
+			var inv = data_inverters.inverters[i];
+			var url = jsunnyreports_jsonfiles_location + "running-" + inv.name + ".json";
+			$.getJSON( url, function( data_kwhkwp ) {
+				for ( j=0; j<data_kwhkwp.series.length; j++ ) {
+					drawSeries( chart, data_kwhkwp.series[j], data_kwhkwp.series[j].linecolor );
+				}	
+			});		
+		}	
+	});	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateChart( inverterName ) {
+	while( chart.series.length > 0 ) {
+		chart.series[0].remove( true );
+	}	
+
+	var url = jsunnyreports_jsonfiles_location + "running-" + inverterName + ".json";
+	$.getJSON( url, function( data_kwhkwp ) {
+		for ( i=0; i<data_kwhkwp.series.length; i++ ) {
+			drawSeries( chart, data_kwhkwp.series[i], data_kwhkwp.series[i].linecolor );
+			drawkwhkwpSeries( chart, data_kwhkwp.series[i], data_kwhkwp.series[i].comparelinecolor );
+		}	
+	});
+}
+	
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawChart() {
+	theChart();
+
+	var theOption = "";
+	$.getJSON( file_inverters, function( data_inverters ) {
+		for ( i = 0; i < data_inverters.inverters.length; i++) {
+			var inv = data_inverters.inverters[i];
+			if ( i == 0 ) {
+				theOption = "<option value=\"" + inv.name + "\" selected>" + inv.name + "</option>" ;  
+				defaultInverter = inv.name;
+			} else {
+				theOption = "<option value=\"" + inv.name + "\">" + inv.name + "</option>" ;  
+			}	
+			$('#inverter').append( theOption );
+		}
+		populateChart( defaultInverter );
+	});	
+}	
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// doMagic() for index.html
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	displayHeader();
+	displayFooter();
+	drawChart();
+});
+

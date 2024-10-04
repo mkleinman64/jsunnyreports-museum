@@ -1,0 +1,94 @@
+var jsr_records_alltime = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadBestDaysTable() {
+	$.getJSON( file_recorddays, function( recentdays ) {
+
+		for ( i = 0; i < recentdays.data.length; i++ ) {
+			if ( recentdays.data[i].kwh > 0 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td id='idCell'>";
+				theData += recentdays.data[i].date;
+				theData += "</td>";
+				theData += "<td  class=\"text-right\">";
+				theData += numeral(recentdays.data[i].kwh).format(format_kwh);
+				theData += "</td>";		
+				theData += "<td  class=\"text-right\">";
+				theData += numeral(recentdays.data[i].peakpower).format(format_watt);
+				theData += "</td>";						
+				theData += "</tr>";
+				$( "#bestDaysTableData" ).append( theData );
+			}
+		}	
+	});
+}		
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadBestMonthsTable() {
+	$.getJSON( file_recordmonths, function( recordmonths ) {
+
+		for ( i = 0; i < recordmonths.data.length; i++ ) {
+			if ( recordmonths.data[i].kwh > 0 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td id='idCell'>";
+				theData += recordmonths.data[i].date;
+				theData += "</td>";
+				theData += "<td  class=\"text-right\">";
+				theData += numeral(recordmonths.data[i].kwh).format(format_kwh);
+				theData += "</td>";		
+				theData += "<td  class=\"text-right\">";
+				theData += numeral(recordmonths.data[i].peakpower).format(format_watt);
+				theData += "</td>";						
+				theData += "</tr>";
+				$( "#bestMonthsTableData" ).append( theData );
+			}
+		}	
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadBestYearsTable() {
+	$.getJSON( file_recordyears, function( recordyears ) {
+
+		for ( i = 0; i < recordyears.data.length; i++ ) {
+			if ( recordyears.data[i].kwh > 0 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td id='idCell'>";
+				theData += recordyears.data[i].date;
+				theData += "</td>";
+				theData += "<td  class=\"text-right\">";
+				theData += numeral(recordyears.data[i].kwh).format(format_kwh);
+				theData += "</td>";		
+				theData += "<td  class=\"text-right\">";
+				theData += numeral(recordyears.data[i].peakpower).format(format_watt);
+				theData += "</td>";						
+				theData += "</tr>";
+				$( "#bestYearsTableData" ).append( theData );
+			}
+		}	
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+
+	loadBestDaysTable();
+	loadBestMonthsTable();
+	loadBestYearsTable();		
+	displayHeader();
+	displayFooter();
+	
+	
+});
+

@@ -1,0 +1,17 @@
+$("#jsr_common").html( jsr_common );
+$("#jsr_day").html( jsr_day );
+$("#jsr_best_day").html( jsr_best_day );
+$("#jsr_day_compare").html( jsr_day_compare );
+$("#jsr_diary").html( jsr_diary );
+$("#jsr_historic_day").html( jsr_historic_day );
+$("#jsr_includes").html( jsr_includes );
+$("#jsr_index").html( jsr_index );
+$("#jsr_inverters").html( jsr_inverters );
+$("#jsr_kwh_year").html( jsr_kwh_year );
+$("#jsr_misc").html( jsr_misc );
+$("#jsr_months").html( jsr_months );
+$("#jsr_records").html( jsr_records );
+$("#jsr_records_alltime").html( jsr_records_alltime );
+$("#jsr_year").html( jsr_year );
+$("#jsr_years").html( jsr_years );
+$("#jsr_sunchart").html( jsr_sunchart );

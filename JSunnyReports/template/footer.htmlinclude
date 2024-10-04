@@ -1,0 +1,24 @@
+			<!-- jsunnyreports footer -->
+			<div id="include_footer">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<i class="fa fa-bell fa-fw"></i> ##caption.footer##
+							</div>
+							<!-- /.panel-heading -->
+							<div class="panel-body">
+								<span class="pull-left">##caption.lastupdate##: <span id="jsunnyreports_last_update"></span></span>
+								<br/>
+								<span class="pull-left" id="jsunnyreports_version"></span>
+							</div>
+
+							<!-- /.panel-body -->
+						</div>
+						<!-- /.panel -->
+						  
+							<!-- /.panel-footer -->
+					</div>
+				</div>			
+			</div>
+			<!-- end of the footer -->

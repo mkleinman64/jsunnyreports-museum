@@ -1,0 +1,696 @@
+var jsr_year = '2.6.0';
+
+var theBarChart;
+var theCummulativeChart;
+var thePieChart;
+var theDayChart;
+
+$('#the-form').on('submit', function() {
+	var yn = $('#year').val();
+
+	var url = jsunnyreports_jsonfiles_location + yn + "/" + yn + ".json";
+	
+	$.getJSON( url, function( yeardata ) {
+
+		populateTable( yeardata );
+		populateChart( yeardata );
+		populateInverters( yeardata );
+		drawPieChart( yeardata );			
+
+		$.getJSON( file_config, function( data_config ) {
+			if ( data_config.config.displayexpected ) {
+				drawExpected(yeardata, data_config.config.expectedcolor );
+			}		
+			drawLastYear(yeardata, data_config.config.previousyearcolor);	
+		});	
+	});	
+	
+	var day_url = jsunnyreports_jsonfiles_location + yn + "/" + yn + "-daydata.json";
+	$.getJSON( day_url, function( daydata ) {
+		populateDayChart( daydata );
+			
+	});
+	
+	return false; 
+	
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function initBarChart() {
+	
+	var chartBarOptions = {
+			chart: {
+				type: 'column',
+				zoomType: 'xy',
+				resetZoomButton: {
+                position: {
+                    align: 'right', 
+                    verticalAlign: 'bottom', 
+                    x: -10,
+                    y: -35
+					}
+				},				
+				renderTo: 'container_chart',
+				plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+				}					
+			},
+			title: {
+				text: '',
+				useHTML: true
+			},
+			xAxis: {
+				type: 'category',
+				categories: [ "##month_jan##".unescapeHtml(),"##month_feb##".unescapeHtml(),"##month_mar##".unescapeHtml(),"##month_apr##".unescapeHtml(),"##month_may##".unescapeHtml(),"##month_jun##".unescapeHtml(),"##month_jul##".unescapeHtml(),"##month_aug##".unescapeHtml(),"##month_sep##".unescapeHtml(),"##month_oct##".unescapeHtml(),"##month_nov##".unescapeHtml(),"##month_dec##".unescapeHtml() ],
+				labels: {
+                rotation: -45,
+                style: {
+                    fontSize: '11px',
+                    fontFamily: 'Verdana, sans-serif'
+					},
+				useHTML: true
+				}				
+				
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: '##caption.production##',
+					useHTML: true
+				}
+			},
+			legend: {
+				reversed: false
+			},
+			plotOptions: {
+				series: {
+					stacking: 'normal'
+				}
+			},
+			series: []
+		};		
+	
+	theBarChart = new Highcharts.Chart(chartBarOptions);	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function initCummulativeChart() {
+	var chartBarOptions = {
+			chart: {
+				renderTo: 'container_chart_sum',
+				plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+				}	
+			},
+			title: {
+				text: '',
+				useHTML: true
+			},
+			xAxis: {
+				type: 'category',
+				categories: [ "##month_jan##".unescapeHtml(),"##month_feb##".unescapeHtml(),"##month_mar##".unescapeHtml(),"##month_apr##".unescapeHtml(),"##month_may##".unescapeHtml(),"##month_jun##".unescapeHtml(),"##month_jul##".unescapeHtml(),"##month_aug##".unescapeHtml(),"##month_sep##".unescapeHtml(),"##month_oct##".unescapeHtml(),"##month_nov##".unescapeHtml(),"##month_dec##".unescapeHtml() ],
+				labels: {
+                rotation: -45,
+                style: {
+                    fontSize: '11px',
+                    fontFamily: 'Verdana, sans-serif'
+					},
+				useHTML: true
+				}				
+				
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: '##caption.production##',
+					useHTML: true
+				}
+			},
+			legend: {
+				reversed: false
+			},
+			plotOptions: {
+				series: {
+					stacking: 'normal'
+				}
+			},
+			series: []
+		};		
+	
+	theCummulativeChart = new Highcharts.Chart(chartBarOptions);	
+
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function initPieChart() {
+	var options = {
+		chart: {
+			type: 'pie',
+			options3d: {
+				enabled: true,
+				alpha: 45
+			},
+			renderTo: 'container_pie',
+		},
+		title: {
+			text: ""
+		},
+		exporting: { enabled: false },
+		credits: { enabled: false },		
+		plotOptions: {
+			pie: {
+				innerSize: 20,
+				depth: 45,
+				dataLabels: {
+                enabled: false },
+				showInLegend: true	
+			}
+			
+		},
+		tooltip: {
+			pointFormat: '{point.y:.2f}##caption.kwh##'
+		},		
+		series: []
+
+	 
+	};
+	thePieChart = new Highcharts.Chart(options);	
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function initDayChart() {
+	
+	var chartBarOptions = {
+			chart: {
+				type: 'column',
+				zoomType: 'xy',
+				resetZoomButton: {
+                position: {
+                    align: 'right', 
+                    verticalAlign: 'bottom', 
+                    x: -10,
+                    y: -35
+					}
+				},				
+				renderTo: 'container_chart_days',
+				plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+				}					
+			},
+			title: {
+				text: '',
+				useHTML: true
+			},
+			xAxis: {
+				type: 'category',
+				categories: [],
+				labels: {
+                rotation: -45,
+                style: {
+                    fontSize: '11px',
+                    fontFamily: 'Verdana, sans-serif'
+					},
+				useHTML: true
+				}				
+				
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: '##caption.production##',
+					useHTML: true
+				}
+			},
+			legend: {
+				reversed: false
+			},
+			series: []
+		};		
+	
+	theDayChart = new Highcharts.Chart(chartBarOptions);	
+}	
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawSeries( inverterName, data, colorArray ) {
+    var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var s = {data: []}; 
+	s.name = inverterName;	
+	s.name = s.name.unescapeHtml();		
+	s.data = data;
+	s.color = colorHex;
+	theBarChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: s.color,
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawSummedSeries( yeardata, colorArray ) {
+    var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+
+	var sumArr  = [];
+	
+	for ( m=0; m<12; m++ ) {
+		var theMonth = yeardata.months[m];
+		sumArr.push( theMonth.kwh );
+		
+	}	
+	
+	var s = {data: []}; 
+	s.name = '##caption.production##';	
+	s.name = s.name.unescapeHtml();		
+	s.data = sumArr;
+	s.color = colorHex;
+	theCummulativeChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		type: 'column',
+		yAxis: 0,
+		color: s.color,
+		stack: 'production'
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawExpected( yeardata, colorArray ) {
+
+    var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	var expectedArr = [];
+	
+	for ( i = 1; i<=12; i++ ) {
+		var expectedValue = yeardata.months[i-1].expected;
+	    expectedArr.push( expectedValue );
+	}	
+	
+	var s = {data: []}; 
+	s.name = "##caption.expected##";			
+	s.name = s.name.unescapeHtml();	
+	s.data = expectedArr;
+	s.color = colorHex;
+	theBarChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		type: 'spline',
+		yAxis: 0,
+		color: s.color,
+		stack: 'expected'
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawLastYear( yeardata, colorArray ) {
+
+    var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var lastYearArr = [];
+	
+	for ( i = 1; i<=12; i++ ) {
+		var lastYearValue = yeardata.months[i-1].lastyear;
+	    lastYearArr.push( lastYearValue );
+	}	
+	
+	var s = {data: []}; 
+	s.name = "##caption.lastyear##";			
+	s.name = s.name.unescapeHtml();	
+	s.data = lastYearArr;
+	s.color = colorHex;
+	theBarChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		type: 'spline',
+		yAxis: 0,
+		color: s.color,
+		stack: 'lastyear'
+	}, true);
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateChart( year ) {
+	var title = year.year;
+	while( theBarChart.series.length > 0 ) {
+		theBarChart.series[0].remove( true );
+	}
+    
+	while ( theCummulativeChart.series.length > 0 ) {
+		theCummulativeChart.series[0].remove( true );
+	}	
+	
+	theBarChart.setTitle( { text: title });
+	theCummulativeChart.setTitle( { text: title });
+	
+	
+	for ( inverter=0; inverter<year.inverters.length; inverter++ ) {
+		theInverter = year.inverters[inverter];
+		drawSeries( theInverter.inverter, theInverter.monthdata, theInverter.barcolor );
+	}
+	
+	if ( year.inverters.length == 1 ) {
+		$('#container_chart_sum').slideUp();
+	} else {
+		drawSummedSeries( year, [180,0,0] );
+		
+    }		
+}
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawSeriesDayChart( title, daydata ) {
+    var colorHex = rgbToHex( 0, 0, 0 );
+	var s = {data: []}; 
+	s.name = title;	
+	s.name = s.name.unescapeHtml();		
+	s.data = daydata;
+	s.color = colorHex;
+	theDayChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: s.color
+	}, true);
+}
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateDayChart( daydata ) {
+	var title = "##year.chart##";
+	while( theDayChart.series.length > 0 ) {
+		theDayChart.series[0].remove( true );
+	}
+
+	theDayChart.setTitle( { text: title });
+	drawSeriesDayChart( daydata.year + "", daydata.daydata );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateTable( year ) {
+
+	$('#months').html( "" );
+    for ( m=0; m<year.months.length; m++ ) {
+		var theMonth = year.months[m];
+		var tr = "";
+		
+		tr += "<tr>";
+		tr += "<td class=\"text-right\">";
+		tr += theMonth.month;		
+		tr += "</td>";
+
+		tr += "<td class=\"text-right\">";
+		tr += numeral( theMonth.kwh).format(format_kwh);
+		tr += "</td>";
+		
+		if ( "kwhpercentage" in theMonth && theMonth.kwh > 0 ) {
+			tr += "<td class=\"text-right\">";
+			
+			var kwhPercentage = theMonth.kwhpercentage;
+			var displayPercentage;
+			var modifier;
+			
+			if ( kwhPercentage > 100 ) {
+			   displayPercentage = kwhPercentage - 100;
+			   modifier = "+";
+			} else {
+			   displayPercentage = 100 - kwhPercentage;
+			   modifier = "-";
+			
+			}
+			
+			tr += modifier + numeral( displayPercentage ).format(format_percentage);
+			tr += "%";			
+			tr += "</td>";
+		
+		} 
+		else {
+			tr += "<td class=\"text-right\">";
+			tr += "&nbsp;"
+			tr += "</td>";
+		
+		}		
+
+		tr += "<td class=\"text-right\">";
+		tr += numeral( theMonth.peakpower).format(format_watt);
+		tr += "</td>";		
+		
+		tr += "<td class=\"text-right\">";
+		tr += numeral( theMonth.wp).format(format_wp);
+		tr += "</td>";
+
+		tr += "<td class=\"text-right\">";
+		tr += numeral( theMonth.kwhkwp).format(format_kwhkwp); //kwh/kwp
+ 		tr += "</td>";
+
+		tr += "<td class=\"text-right\">";
+		tr += numeral( theMonth.co2).format(format_co2); //co2
+		tr += "</td>";
+
+		tr += "<td class=\"text-right\">";
+		tr += "&euro;" + numeral( theMonth.savings).format(format_currency);
+		tr += "</td>";
+		
+		tr += "</tr>";
+	
+		$('#months').append( tr );
+	}	
+	
+	tr = "";
+	tr += "<tr class=\"info\">";
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += "##caption.summary##";		
+    tr += "</strong>";
+	tr += "</td>";
+
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += numeral( year.kwh).format(format_kwh);
+    tr += "</strong>";
+	tr += "</td>";
+	
+	if ( "kwhpercentage" in year && year.kwh > 0 ) {
+		
+		tr += "<td class=\"text-right\">";
+		tr += "<strong>";
+		
+		var kwhPercentage = year.kwhpercentage;
+		var displayPercentage;
+		var modifier;
+		
+		if ( kwhPercentage > 100 ) {
+		   displayPercentage = kwhPercentage - 100;
+		   modifier = "+";
+		} else {
+		   displayPercentage = 100 - kwhPercentage;
+		   modifier = "-";
+		
+		}
+		
+		tr += modifier + numeral( displayPercentage ).format(format_percentage);
+		tr += "%";		
+		tr += "</strong>";
+		tr += "</td>";
+	
+	} 
+	else {
+		tr += "<td class=\"text-right\">";
+		tr += "&nbsp;"
+		tr += "</td>";
+	
+	}	
+
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += numeral( year.peakpower).format(format_watt);
+    tr += "</strong>";
+	tr += "</td>";		
+	
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += numeral(year.wp).format(format_wp);
+    tr += "</strong>";
+	tr += "</td>";
+
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += numeral( year.kwhkwp).format(format_kwhkwp); //kwh/kwp
+    tr += "</strong>";
+	tr += "</td>";
+
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += numeral( year.co2).format(format_co2); //co2
+    tr += "</strong>";
+	tr += "</td>";
+
+	tr += "<td class=\"text-right\">";
+    tr += "<strong>";
+	tr += "&euro;" + numeral( year.savings).format(format_currency);
+    tr += "</strong>";
+	tr += "</td>";
+	
+	tr += "</tr>";
+
+	$('#months').append( tr );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateInverters( yeardata ) {
+	$('#invertermonth').html( "" );
+	
+    for ( i=0; i<yeardata.inverters.length; i++ ) {
+		var theInverter = yeardata.inverters[i];
+		var tr = "";
+		
+		tr += "<tr>";
+		tr += "<td class=\"text-left\">";
+		tr += theInverter.inverter;		
+		tr += "</td>";
+
+		tr += "<td class=\"text-right\">";
+		tr += numeral( theInverter.kwh).format(format_kwh);
+		tr += "</td>";
+		tr += "</tr>";
+		$('#invertermonth').append( tr );
+	}	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawPieChart( yeardata ) {
+	while( thePieChart.series.length > 0 ) {
+		thePieChart.series[0].remove( true );
+	}	
+	
+	var series = {data: []}; 
+
+	var pie_data_array = [];
+	var pie_colors_array = [];
+	
+    for ( x=0; x<yeardata.inverters.length; x++ ) {
+		var theInverter = yeardata.inverters[x];
+
+		var pie_data_item = [ theInverter.inverter, theInverter.kwh ];
+		var pie_color = rgbToHex( theInverter.piecolor[0], theInverter.piecolor[1], theInverter.piecolor[2] );
+		
+		pie_data_array.push( pie_data_item );
+		pie_colors_array.push( pie_color );
+	}	
+	
+	series.data = pie_data_array;
+	series.colors = pie_colors_array;
+	
+	thePieChart.addSeries({                        
+			name: series.name,
+			data: series.data,
+			colors: series.colors
+		}, true);			
+
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function init() {
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		year = data_jsr.last_active_year; 
+
+		var theOption = "";
+
+		$.getJSON( file_years, function( data_years ) {
+			for ( i = 0; i < data_years.years.length; i++) {
+				var yn = data_years.years[i].year;
+				
+				if ( yn == year ) {
+					theOption = "<option value=\"" + yn + "\" selected>" + yn + "</option>" ;  
+				} else {
+					theOption = "<option value=\"" + yn + "\">" + yn + "</option>" ;  
+				}	
+				$('#year').append( theOption );
+			}
+		});	
+	});	
+}	
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawCharts() {
+	initBarChart();
+	initCummulativeChart();	
+	initPieChart();
+	initDayChart();
+
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		year = data_jsr.last_active_year; 
+		
+		var url = jsunnyreports_jsonfiles_location + year + "/" + year + ".json";
+		
+		$.getJSON( url, function( yeardata ) {
+
+			populateTable( yeardata );
+			populateChart( yeardata );
+			populateInverters( yeardata );
+			drawPieChart( yeardata );			
+
+			$.getJSON( file_config, function( data_config ) {
+				if ( data_config.config.displayexpected ) {
+					drawExpected(yeardata, data_config.config.expectedcolor );
+				}		
+
+				drawLastYear(yeardata, data_config.config.previousyearcolor);	
+			});	
+		});
+		
+		var day_url = jsunnyreports_jsonfiles_location + year + "/" + year + "-daydata.json";
+		$.getJSON( day_url, function( daydata ) {
+			populateDayChart( daydata );
+			
+		});		
+	});			
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	init();
+	displayHeader();
+	displayFooter();
+	drawCharts();
+});
+

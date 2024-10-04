@@ -1,0 +1,175 @@
+var jsr_best_day = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart( inverterName ) {
+	var render_container = 'container_' + inverterName;
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: render_container,
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: "",
+			useHTML: true
+		},
+		subtitle: {
+			text: '',
+			useHTML: true
+		},
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			title: {
+				text: 'Tijd',
+				useHTML: true
+			}
+		},
+		yAxis: {
+			title: {
+				text: 'Watt',
+				useHTML: true
+			},
+			min: 0
+		},
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%H:%M}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	var inverterChart = new Highcharts.Chart(options);
+	
+	return inverterChart;
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function addDiv( inverterName ) {
+	var theDiv = "";
+	theDiv += "<div class=\"row\">";
+	theDiv += "	<div class=\"col-lg-12\">";
+	theDiv += "		<div class=\"panel panel-default\">";
+	theDiv += "			<div class=\"panel-heading\">";
+	theDiv += "				<i class=\"fa fa-bar-chart-o fa-fw\"></i>" + inverterName;
+	theDiv += "			</div>";
+	theDiv += "			<div class=\"panel-body\">";
+	theDiv += "				 <div id=\"container_" + inverterName +"\" style=\"height: 520px;\"></div>";
+	theDiv += "			</div>";
+	theDiv += "		</div>";
+	theDiv += "	</div>";
+	theDiv += "</div>";  
+	
+	$( "#inverter_container" ).append( theDiv );	
+
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Draw a timeseries chart.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawTimeSeries( iChart, d, m, y, inverter, colorArray, prefix ) {
+	var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var s = {data: []}; 
+	
+	if ( prefix != null ) {
+		s.name = prefix + " " + inverter.name; 		
+	} else {
+		s.name = inverter.name;		
+
+	}
+	s.name = s.name.unescapeHtml();	
+	
+	for ( idx=0;idx<inverter.data.length;idx++ ) {
+		var hour = inverter.data[idx].h;
+		var minute = inverter.data[idx].m;
+		var second = inverter.data[idx].s;
+		
+		graphValue = inverter.data[idx].watt;
+		var date = Date.UTC(y,(m-1),d,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	iChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: colorHex
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawBestDay( chart, name, workDay, workMonth, workYear ) {
+	var bestday_filename = "best-" + name + ".json";
+	var bestday_url = jsunnyreports_jsonfiles_location + bestday_filename;
+	
+	$.getJSON( bestday_url, function( bestday ) {
+		drawTimeSeries( chart, workDay, workMonth, workYear, bestday, bestday.comparelinecolor, bestday.date + " (" + numeral( bestday.kwh ).format(format_kwh) + ") "  );
+	});
+	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawCharts() {
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		workDay    = data_jsr.last_active_day;
+		workMonth  = data_jsr.last_active_month;
+		workYear   = data_jsr.last_active_year;
+		
+		var fileName = workDay + "-" + workMonth + "-" + workYear + ".json";
+		var url = jsunnyreports_jsonfiles_location + workYear + "/" + fileName;	
+		var theDate = workDay + "-" + workMonth + "-" + workYear;
+		
+		$.getJSON( url, function( day ) {
+			
+			for ( var i = 0; i < day.inverterdata.length; i++ ) {
+				var inverter = day.inverterdata[i];
+				//alert( inverter.name );
+				
+				if ( inverter.show == 1 ) {
+					addDiv( inverter.name );
+					var inverterChart = theChart( inverter.name );
+					drawTimeSeries( inverterChart, workDay, workMonth, workYear, inverter, inverter.linecolor, theDate + " (" + numeral( inverter.kwh ).format(format_kwh) + ") "   );
+					drawBestDay( inverterChart, inverter.name, workDay, workMonth, workYear );
+					
+				}	
+			}	
+
+		});		
+
+		
+		
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	displayHeader();
+	displayFooter();
+	drawCharts();
+});
+

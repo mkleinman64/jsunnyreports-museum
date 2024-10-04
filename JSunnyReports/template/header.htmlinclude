@@ -1,0 +1,102 @@
+            <!-- main header start -->
+			<div id="include_mainheader">
+				<div class="row">
+					<div class="col-lg-3 col-md-6">
+						<div class="panel panel-green">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-xs-3">
+										<i class="fa fa-signal fa-5x"></i>
+									</div>
+									<div class="col-xs-9 text-right">
+										<div class="huge"><span id="jsunnyreports_header_this_daycurrentpower"></span></div>
+										<div>(##caption.wattshort##) ##caption.now##</div>
+									</div>
+								</div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.peak##: <span id="jsunnyreports_header_this_daypeakpower"></span>##caption.wattshort##&nbsp;##caption.at##&nbsp;<span id="jsunnyreports_header_this_daypeakpowertime"></span></span>
+								<div class="clearfix"></div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">&nbsp;</span>
+								<div class="clearfix"></div>
+							</div>
+							
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-6">
+						<div class="panel panel-green">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-xs-3">
+										<i class="fa fa-signal fa-5x"></i>
+									</div>
+									<div class="col-xs-9 text-right">
+										<div class="huge"><span id="jsunnyreports_header_this_dayyield"></span></div>
+										<div>(##caption.kwh##) ##caption.today##</div>
+									</div>
+								</div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.yesterday##: <span id="jsunnyreports_header_yesterday_dayyield"></span>##caption.kwh##</span>
+								<div class="clearfix"></div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.historic##: <span id="jsunnyreports_header_historic_dayyield"></span>##caption.kwh##</span>
+								<div class="clearfix"></div>
+							</div>
+							
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-6">
+						<div class="panel panel-yellow">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-xs-3">
+										<i class="fa fa-calendar fa-5x"></i>
+									</div>
+									<div class="col-xs-9 text-right">
+										<div class="huge"><span id="jsunnyreports_header_this_monthyield"></span></div>
+										<div>(##caption.kwh##) ##caption.thismonth##</div>
+									</div>
+								</div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.expected##: <span id="jsunnyreports_header_this_monthexpected"></span>##caption.kwh##</span>
+								<div class="clearfix"></div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.prognosis##: <span id="jsunnyreports_header_this_monthprognosis"></span>##caption.kwh##</span>&nbsp;(<span id="jsunnyreports_header_this_monthprognosis_percentage"></span>##caption.percentage##)</span>
+								<div class="clearfix"></div>
+							</div>							
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-6">
+						<div class="panel panel-yellow">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-xs-3">
+										<i class="fa fa-calendar fa-5x"></i>
+									</div>
+									<div class="col-xs-9 text-right">
+										<div class="huge"><span id="jsunnyreports_header_this_yearyield"></span></div>
+										<div>(##caption.kwh##) ##caption.thisyear##</div>
+									</div>
+								</div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.expected##: <span id="jsunnyreports_header_this_yearexpected"></span>##caption.kwh##</span>
+								<div class="clearfix"></div>
+							</div>
+							<div class="panel-footer">
+								<span class="pull-left">##caption.prognosis##: <span id="jsunnyreports_header_this_yearprognosis"></span>##caption.kwh##</span>&nbsp;(<span id="jsunnyreports_header_this_yearprognosis_percentage"></span>##caption.percentage##)</span>
+								<div class="clearfix"></div>
+							</div>							
+							
+							
+						</div>
+					</div>
+				</div>			
+			</div>
+			<!-- main header end -->

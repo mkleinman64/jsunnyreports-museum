@@ -1,0 +1,81 @@
+var jsr_includes = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+String.prototype.unescapeHtml = function () {
+	var temp = document.createElement("div");
+	temp.innerHTML = this;
+	var result = temp.childNodes[0].nodeValue;
+	temp.removeChild(temp.firstChild);
+	return result;
+} 
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayHeader() {
+	$.getJSON( file_common, function( data ) {
+		$( "#jsunnyreports_header_this_daycurrentpower" ).html( numeral( data.common.now2).format(format_watt) );
+		$( "#jsunnyreports_header_this_daypeakpower" ).html( numeral( data.common.peak).format(format_watt) );
+		$( "#jsunnyreports_header_this_daypeakpowertime" ).html( data.common.peaktime );
+		$( "#jsunnyreports_header_this_dayyield" ).html( numeral( data.common.today).format(format_kwh) );
+		$( "#jsunnyreports_header_yesterday_dayyield" ).html( numeral( data.common.yesterday).format(format_kwh) );
+		$( "#jsunnyreports_header_this_monthyield" ).html( numeral( data.common.month).format(format_kwh) );
+		$( "#jsunnyreports_header_this_yearyield" ).html( numeral( data.common.year).format(format_kwh) );	
+		$( "#jsunnyreports_header_this_monthexpected" ).html( numeral( data.common.month_expected).format(format_kwh) );	
+		$( "#jsunnyreports_header_this_yearexpected" ).html( numeral( data.common.year_expected).format(format_kwh) );	
+
+		$( "#jsunnyreports_header_historic_dayyield" ).html( numeral( data.common.historic_day).format( format_kwh) );
+		$( "#jsunnyreports_header_this_monthprognosis" ).html(numeral( data.common.month_prognosis).format( format_kwh ));
+		$( "#jsunnyreports_header_this_yearprognosis" ).html(numeral( data.common.year_prognosis).format( format_kwh ));
+
+		// month
+		var monthPercentage = data.common.month_prognosis_percentage;
+		var displayPercentage;
+		var modifier;
+		
+		if ( monthPercentage > 100 ) {
+		   displayPercentage = monthPercentage - 100;
+		   modifier = "+";
+		} else {
+		   displayPercentage = 100 - monthPercentage;
+		   modifier = "-";
+		}
+		var monthPercentageString = modifier + numeral( displayPercentage ).format( format_percentage )
+		
+		$( "#jsunnyreports_header_this_monthprognosis_percentage" ).html(monthPercentageString );
+
+        // year
+		var yearPercentage = data.common.year_prognosis_percentage;
+		
+		if ( yearPercentage > 100 ) {
+		   displayPercentage = yearPercentage - 100;
+		   modifier = "+";
+		} else {
+		   displayPercentage = 100 - yearPercentage;
+		   modifier = "-";
+		}
+		
+		var yearPercentageString = modifier + numeral( displayPercentage ).format( format_percentage )
+		$( "#jsunnyreports_header_this_yearprognosis_percentage" ).html( yearPercentageString );
+
+		
+	});
+
+	var title = "";
+	$.getJSON( file_config, function( data_config ) {
+		title = "##title.title##" + " " + data_config.config.owner;
+		$( "#website_title" ).html( title );
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayFooter() {
+	$.getJSON( file_jsunnyreports, function( data ) {
+		$( "#jsunnyreports_last_update" ).html(  data.jsunnyreports_last_update );
+		$( "#jsunnyreports_version" ).html( "jSunnyreports: " + data.jsunnyreports_core_version );
+	});
+}

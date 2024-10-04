@@ -1,0 +1,130 @@
+var jsr_kwh_year = '2.6.0';
+
+var chartType;
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart() {
+
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: 'container_chart',
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: "##kwhyear.chart##",
+			useHTML: true
+		},
+		subtitle: {
+			text: '',
+			useHTML: true
+		},
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			labels: {
+						rotation: -45,
+						format: '{value:%d-%m}',
+						style: {
+									fontSize: '11px',
+									fontFamily: 'Verdana, sans-serif'
+								},
+						useHTML: true
+					},				
+			title: {
+				text: '##caption.date##',
+				useHTML: true
+			}
+		},
+		yAxis: {
+			title: {
+				text: '##caption.kwh##',
+				useHTML: true
+			},
+			min: 0
+		},
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%e. %B}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	chart = new Highcharts.Chart(options);
+	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Draw a timeseries chart.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawSeries( chart, series ) {
+		
+	var s = {data: []}; 
+	// without the implicit to string of s.name it will cause an error in the unescape function.
+	s.name = "" + series.name;	
+	s.name = s.name.unescapeHtml();		
+
+	var year = 2012; // leap year!
+
+	for ( idx=0;idx<series.data.length;idx++ ) {
+		var month = series.data[idx].mo - 1;
+		var day = series.data[idx].d;
+		var hour = series.data[idx].h;
+		var minute = series.data[idx].mi;
+		var second = series.data[idx].s;
+		
+		var graphValue = 0;
+		graphValue = series.data[idx].kwhc;
+		var date = Date.UTC(year,month,day,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	chart.addSeries({                        
+		name: s.name,
+		data: s.data
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateChart( ) {
+	$.getJSON( file_kwh_year, function( data_kwh_year ) {
+		for ( i=0; i<data_kwh_year.series.length; i++ ) {
+			drawSeries( chart, data_kwh_year.series[i] );
+		}	
+	});
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// doMagic() for index.html
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	displayHeader();
+	displayFooter();
+	
+	theChart();
+	populateChart();	
+	
+	
+});
+

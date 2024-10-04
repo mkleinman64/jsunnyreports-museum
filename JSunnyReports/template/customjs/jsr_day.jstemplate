@@ -1,0 +1,412 @@
+var jsr_day = '2.6.0';
+
+var chartType;
+var pie_chart;
+
+var workDay;
+var workMonth;
+var workYear;
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Datepicker functionality!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#the-form .input-group.date').datepicker({
+	format: "dd-mm-yyyy",
+	language: "##bootstrap_language##",
+	startDate: "##datepicker_startdate##",
+	endDate: "##datepicker_enddate##"
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#the-form').on('submit', function() {
+	var dateValue = $('#datevalue').val();
+    
+	if ( dateValue.length == 10 ) {
+
+        var workArray = dateValue.split("-");
+		
+		workDay = parseInt( workArray[0] );
+		workMonth = parseInt( workArray[1] );
+		workYear = parseInt( workArray[2] );
+		
+		updateChart( workDay, workMonth, workYear );
+		inverterTable( workDay, workMonth, workYear );
+		drawPieChart( workDay, workMonth, workYear );			
+
+	}
+	return false; 
+	
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#radioForm input').on('change', function() {
+	chartType = $('input[name=charttype]:checked', '#radioForm').val();
+	updateChart( workDay, workMonth, workYear );
+	
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#recentTableData').on('click', 'tr', function() {
+	var theDate = $(this).find("#idCell").html();
+	
+	if ( theDate != null ) {
+		var split =  theDate.split("-");
+		$('table').find('tr.info').removeClass('info');
+		$('#recordTableData').find('tr.info').removeClass('info');
+		$(this).addClass('info');	
+		workDay = parseInt( split[0] );
+		workMonth = parseInt( split[1] );
+		workYear = parseInt( split[2] );
+		updateChart( workDay, workMonth, workYear );
+		inverterTable( workDay, workMonth, workYear );
+		drawPieChart( workDay, workMonth, workYear );	
+	}
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#recordTableData').on('click', 'tr', function() {
+	var theDate = $(this).find("#idCell").html();
+	
+	if ( theDate != null ) {
+		var split =  theDate.split("-");
+		$('table').find('tr.info').removeClass('info');
+		$('#recentTableData').find('tr.info').removeClass('info');
+		$(this).addClass('info');	
+		workDay = parseInt( split[0] );
+		workMonth = parseInt( split[1] );
+		workYear = parseInt( split[2] );
+		updateChart( workDay, workMonth, workYear );
+		inverterTable( workDay, workMonth, workYear );	
+		drawPieChart( workDay, workMonth, workYear );			
+	}
+});		
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function updateChart( day, month, year ) {
+		while( chart.series.length > 0 ) {
+			chart.series[0].remove( true );
+		}
+		
+		var fileName = day + "-" + month + "-" + year + ".json";
+		var url = jsunnyreports_jsonfiles_location + year + "/" + fileName;	
+		var theDate = day + "-" + month + "-" + year;
+		chart.setTitle({text: theDate });	
+		
+		$.getJSON( url, function( day ) {
+			if ( chartType == "watt" ) {
+			   displayWattPerformance( day, false, workDay, workMonth, workYear );
+			}			
+			else if ( chartType == "kwh" ) {
+				displayKWhPerformance( day, false, workDay, workMonth, workYear );
+			}	
+			else {
+				displayWWpPerformance( day, false, workDay, workMonth, workYear );
+			}	
+		});		
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart() {
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: 'container_chart',
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: "",
+			useHTML: true
+		},
+		subtitle: {
+			text: '',
+			useHTML: true
+		},
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			title: {
+				text: '##caption.time##',
+				useHTML: true
+			}
+		},
+		yAxis: {
+			title: {
+				text: '##caption.watt##',
+				useHTML: true
+			},
+			min: 0
+		},
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%H:%M}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	chart = new Highcharts.Chart(options);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function pieChart() {
+	var options = {
+		chart: {
+			type: 'pie',
+			options3d: {
+				enabled: true,
+				alpha: 45
+			},
+			renderTo: 'container_pie',
+		},
+		title: {
+			text: ""
+		},
+		exporting: { enabled: false },
+		credits: { enabled: false },		
+		plotOptions: {
+			pie: {
+				innerSize: 20,
+				depth: 45,
+				dataLabels: {
+                enabled: false },
+				showInLegend: true	
+			}
+			
+		},
+		tooltip: {
+			pointFormat: '{point.y:.2f}##caption.kwh##'
+		},		
+		series: []
+
+	 
+	};
+	pie_chart = new Highcharts.Chart(options);	
+};	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadRecentDaysTable() {
+	$.getJSON( file_recentdays, function( recentdays ) {
+		var theHeader = "";
+		theHeader += "<thead>";
+		theHeader += "<tr>";
+		theHeader += "<th>";
+		theHeader += "##caption.date##";
+		theHeader += "</th>";
+		theHeader += "<th class=\"text-right\">";
+		theHeader += "##caption.kwh##";
+		theHeader += "</th>";		
+		theHeader += "<th class=\"text-right\">";
+		theHeader += "##caption.watt##";
+		theHeader += "</th>";		
+		theHeader += "</tr>";
+		theHeader += "</thead>";
+		$( "#recentTableData" ).append( theHeader );	
+
+		for ( idx=0;idx< recentdays.recentdays.length; idx++ ) {
+			var day = recentdays.recentdays[idx];
+			if ( day.kwh > 0 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td id='idCell'>";
+				theData += day.date;
+				theData += "</td>";
+				theData += "<td class=\"text-right\">";
+				theData += numeral(day.kwh).format(format_kwh);
+				theData += "</td>";		
+				theData += "<td class=\"text-right\">";
+				theData += numeral(day.peakpower).format(format_watt);
+				theData += "</td>";		
+				theData += "</tr>";
+				$( "#recentTableData" ).append( theData );
+			}   
+		}	
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function loadRecordsDaysTable() {
+	$.getJSON( file_recorddays, function( recentdays ) {
+		var theHeader = "";
+		theHeader += "<thead>";
+		theHeader += "<tr>";
+		theHeader += "<th>";
+		theHeader += "##caption.date##";
+		theHeader += "</th>";
+		theHeader += "<th class=\"text-right\">";
+		theHeader += "##caption.kwh##";
+		theHeader += "</th>";		
+		theHeader += "<th class=\"text-right\">";
+		theHeader += "##caption.watt##";
+		theHeader += "</th>";		
+		theHeader += "</tr>";
+		theHeader += "</thead>";
+		$( "#recordTableData" ).append( theHeader );
+
+		for ( i = 0; i < recentdays.data.length; i++ ) {
+			if ( recentdays.data[i].kwh > 0 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td id='idCell'>";
+				theData += recentdays.data[i].date;
+				theData += "</td>";
+				theData += "<td class=\"text-right\">";
+				theData += numeral(recentdays.data[i].kwh).format(format_kwh);
+				theData += "</td>";		
+				theData += "<td class=\"text-right\">";
+				theData += numeral(recentdays.data[i].peakpower).format(format_watt);
+				theData += "</td>";		
+				theData += "</tr>";
+				$( "#recordTableData" ).append( theData );
+			}
+		}	
+	});
+}		
+	
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------	
+function drawChart() {
+	theChart();	
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		workDay    = data_jsr.last_active_day;
+		workMonth  = data_jsr.last_active_month;
+		workYear   = data_jsr.last_active_year;
+		updateChart( data_jsr.last_active_day, data_jsr.last_active_month,  data_jsr.last_active_year );
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function initInverterTable() {
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		workDay    = data_jsr.last_active_day;
+		workMonth  = data_jsr.last_active_month;
+		workYear   = data_jsr.last_active_year;
+		inverterTable( data_jsr.last_active_day, data_jsr.last_active_month,  data_jsr.last_active_year );
+		drawPieChart( data_jsr.last_active_day, data_jsr.last_active_month,  data_jsr.last_active_year );		
+	});	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function inverterTable( day, month, year ) {
+	$( "#inverterTable" ).html( "" );
+
+	var fileName = day + "-" + month + "-" + year + ".json";
+	var url = jsunnyreports_jsonfiles_location + year + "/" + fileName;	
+	
+	$.getJSON( url, function( day ) {
+		for ( i=0;i<day.inverterdata.length; i++ ) {
+			var inverter = day.inverterdata[i];
+			
+			if ( inverter.show == 1 ) {
+				var theData = "";		
+				theData += "<tr>";
+				theData += "<td>";
+				theData += inverter.name;
+				theData += "</td>";
+				theData += "<td class=\"text-right\">";
+				theData += numeral(inverter.peakpower).format(format_watt);
+				theData += "</td>";		
+				theData += "<td class=\"text-right\">";
+				theData += numeral(inverter.kwh).format(format_kwh);
+				theData += "</td>";		
+				theData += "</tr>";
+				
+				$( "#inverterTable" ).append( theData );	
+			
+			}
+			
+		}	
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawPieChart( day, month, year ) {
+	pieChart();
+	while( pie_chart.series.length > 0 ) {
+		pie_chart.series[0].remove( true );
+	}	
+	
+	var fileName = day + "-" + month + "-" + year + ".json";
+	var url = jsunnyreports_jsonfiles_location + year + "/" + fileName;	
+	
+	$.getJSON( url, function( day ) {
+		
+		var series = {data: []}; 
+
+		var pie_data_array = [];
+		var pie_colors_array = [];
+		
+		for ( i=0;i<day.inverterdata.length; i++ ) {
+			var inverter = day.inverterdata[i];
+			
+			if ( inverter.show == 1 ) {
+				var pie_data_item = [ inverter.name, inverter.kwh ];
+				var pie_color = rgbToHex( inverter.piecolor[0], inverter.piecolor[1], inverter.piecolor[2] );
+				
+				pie_data_array.push( pie_data_item );
+				pie_colors_array.push( pie_color );
+			}
+		}	
+		
+		series.data = pie_data_array;
+		series.colors = pie_colors_array;
+		
+		pie_chart.addSeries({                        
+				name: series.name,
+				data: series.data,
+				colors: series.colors
+			}, true);			
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	chartType = "watt";
+	displayHeader();
+	displayFooter();
+	loadRecentDaysTable();
+	loadRecordsDaysTable();
+	drawChart();
+	initInverterTable();
+});
+

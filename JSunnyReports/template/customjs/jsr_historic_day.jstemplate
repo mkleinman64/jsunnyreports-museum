@@ -1,0 +1,180 @@
+var jsr_historic_day = '2.6.0';
+
+var barChart;
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Datepicker functionality!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#the-form .input-group.date').datepicker({
+	format: "dd-mm-yyyy",
+	language: "##bootstrap_language##",
+	startDate: "##datepicker_startdate##",
+	endDate: "##datepicker_enddate##"
+});
+
+$('#the-form').on('submit', function() {
+	var dateValue = $('#datevalue').val();
+	if ( dateValue.length == 10 ) {
+        var workArray = dateValue.split("-");
+		
+		workDay = parseInt( workArray[0] );
+		workMonth = parseInt( workArray[1] );
+		populateChart( workDay, workMonth ) ;
+	}
+	return false; 
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart( years ) {
+	var chartBarOptions = {
+			chart: {
+				type: 'column',
+				renderTo: 'container_chart',
+				plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+				}					
+			},
+			title: {
+				text: '',
+				useHTML: true
+			},
+			xAxis: {
+				type: 'category',
+				categories: years,
+				labels: {
+				rotation: -45,
+				style: {
+					fontSize: '11px',
+					fontFamily: 'Verdana, sans-serif'
+					},
+				useHTML: true
+				}				
+				
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: '##caption.production##',
+					useHTML: true
+				}
+			},
+			legend: {
+				reversed: true
+			},
+			plotOptions: {
+				series: {
+					stacking: 'normal'
+				}
+			},
+			series: []
+		};		
+	barChart = new Highcharts.Chart(chartBarOptions);	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawAverage( value, data, colorArray ) {
+    var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	var averageArr = [];
+	
+	for ( i = 0; i<data.length; i++ ) {
+		var value = numeral( value ).format( format_kwh );
+	    averageArr.push( parseFloat( value ) );
+	}	
+	
+	var s = {data: []}; 
+	s.name = "##caption.average##";			
+	s.name = s.name.unescapeHtml();	
+	s.data = averageArr;
+	s.color = colorHex;
+	barChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		type: 'line',
+		yAxis: 0,
+		color: s.color,
+		stack: 'average'
+	}, true);
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawSeries( inverterName, data, colorArray ) {
+    var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var s = {data: []}; 
+	s.name = inverterName;		
+	s.name = s.name.unescapeHtml();		
+	s.data = data;
+	s.color = colorHex;
+	barChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: s.color,
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayData(d,m) {
+	var title = "" + d + "/" + m;
+	barChart.setTitle( { text: title });
+
+	$.getJSON( file_historic, function( data_historic ) {
+		var historic = data_historic.data[m-1].days[d-1].historic;
+		var data = data_historic.data[m-1].days[d-1].data;
+
+		drawSeries( "##caption.historic##", data, [ 255,0,0 ] );
+		drawAverage( historic, data, [ 0,0,0] );
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function populateChart( d,m ) {
+	if ( barChart == null ) {
+		$.getJSON( file_years, function( data_years ) {
+			var years = [];
+			for ( i = 0; i < data_years.years.length; i++) {
+				var yn = data_years.years[i].year;
+				years.push( yn );
+			}			
+			theChart( years );
+			displayData(d,m);
+		});
+	} else {
+		while( barChart.series.length > 0 ) {
+			barChart.series[0].remove( true );
+		}    
+		displayData(d,m);
+	}	
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawChart() {
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		populateChart(data_jsr.last_active_day, data_jsr.last_active_month);
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// doMagic() for index.html
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	displayHeader();
+	displayFooter();
+	drawChart();
+});
+

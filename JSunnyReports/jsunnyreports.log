@@ -1,0 +1,4 @@
+31-08-2024 13:06:04 - [nl.mk.jsunnyreports.inverters.BaseInverter:132]: - Inverter: Test cannot be read. I cannot open the directory D:/temp_mk/JSR/input/steca1, check your inverters.conf
+31-08-2024 13:06:04 - [nl.mk.jsunnyreports.JSunnyReports:335]: - -----------------------------------------------------------------------
+31-08-2024 13:06:04 - [nl.mk.jsunnyreports.JSunnyReports:336]: - Done processing ( time used : 69ms ), exiting program.
+31-08-2024 13:06:04 - [nl.mk.jsunnyreports.JSunnyReports:337]: - -----------------------------------------------------------------------

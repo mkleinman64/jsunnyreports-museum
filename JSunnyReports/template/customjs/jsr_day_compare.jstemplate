@@ -1,0 +1,159 @@
+var jsr_day_compare = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#dv1').datepicker({
+	format: "dd-mm-yyyy",
+	language: "##bootstrap_language##",
+	startDate: "##datepicker_startdate##",
+	endDate: "##datepicker_enddate##"
+	
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#dv2').datepicker({
+	format: "dd-mm-yyyy",
+	language: "##bootstrap_language##",
+	startDate: "##datepicker_startdate##",
+	endDate: "##datepicker_enddate##"
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#the-form').on('submit', function() {
+	var dateValue1 = $('#datevalue1').val();
+	var dateValue2 = $('#datevalue2').val();
+	
+	
+	if ( dateValue1.length == 10 && dateValue2.length == 10 ) {
+
+        var workArray1 = dateValue1.split("-");
+        var workArray2 = dateValue2.split("-");
+		
+		wd1 = parseInt( workArray1[0] );
+		wm1 = parseInt( workArray1[1] );
+		wy1 = parseInt( workArray1[2] );
+
+		wd2 = parseInt( workArray2[0] );
+		wm2 = parseInt( workArray2[1] );
+		wy2 = parseInt( workArray2[2] );
+		
+		var title = dateValue1 + " ##day.compare.with## " + dateValue2;
+		
+		chart.setTitle({text: title });	
+
+		updateChart( wd1, wm1, wy1 );
+		updateCompareChart( wd2, wm2, wy2, wd1, wm1, wy1 );
+
+	}
+	return false; 
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function updateChart( d, m, y ) {
+		while( chart.series.length > 0 ) {
+			chart.series[0].remove( true );
+		}
+		
+		var fileName = d + "-" + m + "-" + y + ".json";
+		var url = jsunnyreports_jsonfiles_location + y + "/" + fileName;	
+		var prefix = "(" + d + "-" + m + ")"; 
+		
+		$.getJSON( url, function( day ) {
+			displayWattPerformance( day, false, d, m, y, prefix);
+		});		
+		
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function updateCompareChart( d1, m1, y1, d2 ,m2, y2 ) {
+	
+		var fileName = d1 + "-" + m1 + "-" + y1 + ".json";
+		var url = jsunnyreports_jsonfiles_location + y1 + "/" + fileName;	
+		var prefix = "(" + d1 + "-" + m1 + ")"; 
+		
+		$.getJSON( url, function( day ) {
+			displayWattPerformance( day, true, d2, m2, y2, prefix );
+		});		
+		
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart() {
+	var title = "";
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: 'container_chart',
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: title,
+			useHTML: true
+		},
+		subtitle: {
+			text: '',
+			useHTML: true
+		},
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			title: {
+				text: '##caption.time##',
+				useHTML: true
+			}
+		},
+		yAxis: {
+			title: {
+				text: '##caption.watt##',
+				useHTML: true
+			},
+			min: 0
+		},
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%H:%M}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	chart = new Highcharts.Chart(options);	
+	
+}	
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// doMagic() for index.html
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+
+	displayHeader();
+	displayFooter();
+	theChart();	
+});
+

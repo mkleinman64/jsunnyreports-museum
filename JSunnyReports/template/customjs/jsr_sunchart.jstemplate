@@ -1,0 +1,218 @@
+var jsr_sunchart = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart( inverterName ) {
+	var render_container = 'container_' + inverterName;
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: render_container,
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: "",
+			useHTML: true
+		},
+		subtitle: {
+			text: '',
+			useHTML: true
+		},
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			title: {
+				text: 'Tijd',
+				useHTML: true
+			}
+		},
+		yAxis: [{
+			title: {
+				text: 'Graden',
+				useHTML: true
+			},
+			min: 0
+		},
+		{
+		title: {
+			text: 'Vermogen'
+		},
+		labels: {
+                format: '{value} W',
+            },
+		opposite: true
+		
+	}		
+		
+		],
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%H:%M}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	var inverterChart = new Highcharts.Chart(options);
+	
+	return inverterChart;
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function addDiv( inverterName ) {
+	var theDiv = "";
+	theDiv += "<div class=\"row\">";
+	theDiv += "	<div class=\"col-lg-12\">";
+	theDiv += "		<div class=\"panel panel-default\">";
+	theDiv += "			<div class=\"panel-heading\">";
+	theDiv += "				<i class=\"fa fa-bar-chart-o fa-fw\"></i>" + inverterName;
+	theDiv += "			</div>";
+	theDiv += "			<div class=\"panel-body\">";
+	theDiv += "				 <div id=\"container_" + inverterName +"\" style=\"height: 520px;\"></div>";
+	theDiv += "			</div>";
+	theDiv += "		</div>";
+	theDiv += "	</div>";
+	theDiv += "</div>";  
+	
+	$( "#sunchart_container" ).append( theDiv );	
+
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Draw a timeseries chart.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawDegreesTimeSeries( iChart, d, m, y, set, colorArray, name, yAxis ) {
+	var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var s = {data: []}; 
+	s.name = name;
+	s.name = s.name.unescapeHtml();	
+
+
+	
+	for ( idx=0;idx<set.length;idx++ ) {
+		var hour = set[idx].h;
+		var minute = set[idx].m;
+		var second = set[idx].s;
+		
+		graphValue = set[idx].value;
+		var date = Date.UTC(y,(m-1),d,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	iChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: colorHex,
+		yAxis: yAxis
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Draw a timeseries chart.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawWattTimeSeries( iChart, d, m, y, set, colorArray, name, yAxis ) {
+	var colorHex = rgbToHex( colorArray[0], colorArray[1], colorArray[2] );
+	
+	var s = {data: []}; 
+	s.name = name;
+	s.name = s.name.unescapeHtml();	
+
+
+	
+	for ( idx=0;idx<set.length;idx++ ) {
+		var hour = set[idx].h;
+		var minute = set[idx].m;
+		var second = set[idx].s;
+		
+		graphValue = set[idx].watt;
+		var date = Date.UTC(y,(m-1),d,hour,minute,second );
+		s.data.push( [ date, graphValue ] );			
+	}
+	   
+	iChart.addSeries({                        
+		name: s.name,
+		data: s.data,
+		color: colorHex,
+		yAxis: yAxis
+	}, true);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+	
+function drawCharts() {
+	$.getJSON( file_inverters, function( inverters ) {
+
+        for ( var inv = 0; inv < inverters.inverters.length; inv++ ) {
+            var workInverter = inverters.inverters[inv];
+			
+			if ( workInverter.active == "Y" ) {
+				var fileName = "actual-sun-angle-" + workInverter.name + ".json";
+				var url = jsunnyreports_jsonfiles_location + "/" + fileName;	
+				
+				$.getJSON( url, function( sunchart ) {
+					// add a div and create the chart variable to be used later.
+					addDiv( sunchart.invertername );				
+					var ic = theChart( sunchart.invertername );
+					var year = sunchart.year;
+					var month = sunchart.month;
+					var day = sunchart.day;
+
+					var red = [ 255,0,0 ];
+					var blue = [ 0,0, 255 ];
+					var gray = [ 120, 120, 120];
+					var yellow = [ 255, 255, 0 ];
+
+					drawDegreesTimeSeries( ic, day, month, year, sunchart.sunHeightHorizon, red, "##caption.sunheighthorizon##",0 );
+					drawDegreesTimeSeries( ic, day, month, year, sunchart.angleWithPanels, blue, "##caption.anglewithpanels##",0 );
+					drawDegreesTimeSeries( ic, day, month, year, sunchart.radiationCurve, yellow, "##caption.radiationcurve##",0 );
+					drawDegreesTimeSeries( ic, day, month, year, sunchart.minHeight, gray, "##caption.maxheightsun##",0 );
+					drawDegreesTimeSeries( ic, day, month, year, sunchart.maxHeight, gray, "##caption.minheightsun##",0 );
+					
+					var fileName = day + "-" + month + "-" + year + ".json";
+					var urlday = jsunnyreports_jsonfiles_location + year + "/" + fileName;	
+						
+					$.getJSON( urlday, function( daywatt ) {
+						for ( i=0;i<daywatt.inverterdata.length; i++ ) {
+							if ( daywatt.inverterdata[i].name == sunchart.invertername ) {
+								var color;
+								color = daywatt.inverterdata[i].linecolor;		
+								drawWattTimeSeries( ic, day, month, year, daywatt.inverterdata[i].data, color, sunchart.invertername , 1 );
+
+							}	
+						}	
+					});					
+				});		
+			}	
+        }
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	displayHeader();
+	displayFooter();
+	drawCharts();
+});
+

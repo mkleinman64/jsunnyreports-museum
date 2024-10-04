@@ -1,0 +1,60 @@
+var jsr_diary = '2.6.0';
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function diary() {
+
+	$.getJSON( file_diary, function( diary ) {
+		var css = "timeline-panel";
+		var inverted = false;
+		for ( i = 0; i < diary.diary.length; i++ ) {
+			var entry = diary.diary[i];
+			var dateArr = entry.date.split("-");
+		
+			var d = "";
+
+			if ( inverted ) {
+				d+= "<li class=\"timeline-inverted\">";
+			} else {
+				d+= "<li>";
+
+			}	
+			d+= "<div class=\"timeline-badge info\">" + dateArr[2];
+			d+= "</div>";
+			d+= "	<div class=\"timeline-panel\">";
+			d+= "		<div class=\"timeline-heading\">";
+			d+= "			<h4 class=\"timeline-title\">"+ entry.title +"</h4>";
+			d+= "			<p><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> "+ entry.date +"</small>";
+			d+= "			</p>";
+			d+= "		</div>";
+			d+= "		<div class=\"timeline-body\">";
+			d+= "			<p>" + entry.entry + "</p>";
+			d+= "		</div>";
+			d+= "</div>";
+			d+= "</li>";
+			
+			$('#timeline').append(d);
+			
+			
+			if ( inverted ) {
+				inverted = false;
+			} else {
+				inverted = true;
+			}		
+		}	   
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// doMagic() for index.html
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	
+	displayHeader();
+	displayFooter();
+
+	diary();
+	
+});
+

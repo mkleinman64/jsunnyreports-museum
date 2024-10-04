@@ -1,0 +1,31 @@
+Source: http://www.cyberciti.biz/faq/how-do-i-make-a-linux-or-freebsd-file-an-executable-file/
+
+You need to use chmod command which is use to change file access permissions as well as to setup an executable permission on file.
+
+General syntax:
+chmod +x file-name
+
+For example to setup executable permission on a file called foo.sh (shell script): 
+
+$ chmod +x foo.sh
+
+To execute file: 
+
+$ ./foo.sh
+
+In case for jSunnyreports
+
+chmod +x config.sh
+chmod +x config_pause.sh
+chmod +x jsunnyreports.sh
+chmod +x jsunnyreports_pause.sh
+
+after that the files should be executable with
+
+./config.sh 
+./config_pause.sh
+./jsunnyreports.sh
+./jsunnyreports_pause.sh
+
+
+Martin

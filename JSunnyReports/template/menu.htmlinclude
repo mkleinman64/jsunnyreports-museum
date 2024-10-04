@@ -1,0 +1,109 @@
+			<div id="include_menu">
+				<!-- Navigation -->
+				<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="index.html" id="website_title"></a>
+					</div>
+					
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a href="http://www.jsunnyreports.com/index.php/configuration/pages/index-page/" target="_blank">
+                        <i class="fa fa-question-circle fa-fw"></i>
+                    </a>
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->					
+					
+					<!-- /.navbar-header -->
+
+					<div class="navbar-default sidebar" role="navigation">
+						<div class="sidebar-nav navbar-collapse">
+							<ul class="nav" id="side-menu">
+								<li>
+									<a href="index.html"><i class="fa fa-dashboard fa-fw"></i> ##menu.dashboard.title##</a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> ##menu.days.title##<span class="fa arrow"></span></a>
+									<ul class="nav nav-second-level">
+										<li>
+											<a href="day.html">##menu.days.dayinformation##</a>
+										</li>
+										<li>
+											<a href="dials.html">##menu.days.live##</a>
+										</li>										
+										<li>
+											<a href="best_day.html">##menu.days.todayvsbest##</a>
+										</li>	
+										<li>
+											<a href="sun-chart.html">##menu.days.sunchart##</a>
+										</li>											
+										<li>
+											<a href="day_compare.html">##menu.days.comparedays##</a>
+										</li>
+										<li>
+											<a href="historic_day.html">##menu.days.historicday##</a>
+										</li>	
+					
+									</ul>
+									<!-- /.nav-second-level -->
+								</li>
+								<li>
+									<a href="months.html"><i class="fa fa-bar-chart-o fa-fw"></i> ##menu.month.title##</a>
+								</li>
+								<li>
+									<a href="year.html"><i class="fa fa-bar-chart-o fa-fw"></i> ##menu.year.title##</a>
+								</li>
+								<li>
+									<a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> ##menu.years.title##<span class="fa arrow"></span></a>
+									<ul class="nav nav-second-level">
+										<li>
+											<a href="years.html">##menu.years.allyears##</a>
+										</li>
+										<li>
+											<a href="kwh_year.html">##menu.years.kwhyearchart##</a>
+										</li>								
+									</ul>
+									<!-- /.nav-second-level -->
+								</li>						
+
+								<li>
+									<a href="inverters.html"><i class="fa fa-dashboard fa-fw"></i> ##menu.inverters.title##</a>
+								</li>						
+								
+								
+								<li>
+									<a href="diary.html"><i class="fa fa-table fa-fw"></i> ##menu.diary.title##</a>
+								</li>						
+
+								<li>
+									<a href="misc.html"><i class="fa fa-table fa-fw"></i> ##menu.misc.title##</a>
+								</li>				
+								<li>
+									<a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> ##menu.records.title##<span class="fa arrow"></span></a>
+									<ul class="nav nav-second-level">
+										<li>
+											<a href="records_alltime.html">##menu.records.alltime##</a>
+										</li>
+										<li>
+											<a href="records.html">##menu.records.yearrecords##</a>
+										</li>								
+									</ul>
+									<!-- /.nav-second-level -->
+								</li>										
+								<li>
+									<a href="http://www.jsunnyreports.com"><i class="fa fa-bar-chart-o fa-fw"></i> ##menu.jsunnyreports.title##</a>
+								</li>
+							</ul>
+						</div>
+						<!-- /.sidebar-collapse -->
+					</div>
+					<!-- /.navbar-static-side -->
+				</nav>			
+			</div>

@@ -1,0 +1,268 @@
+var jsr_index = '2.6.0';
+
+var pie_chart;
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The chart!
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function theChart() {
+	var options = {
+		chart: {
+			type: 'spline',
+			zoomType: 'xy',
+			resetZoomButton: {
+			position: {
+				align: 'right', 
+				verticalAlign: 'bottom', 
+				x: -10,
+				y: -35
+				}
+			},				
+			renderTo: 'container_chart',
+			plotBackgroundColor: {
+				linearGradient: [500, 0, 500, 500],
+				stops: [
+					[0, 'rgb(235, 235, 235)'],
+					[1, 'rgb(200, 200, 200)']
+				]
+			}			
+		},
+		title: {
+			text: "",
+			useHTML: true
+		},
+		exporting: { enabled: false },
+		credits: { enabled: false },	
+		xAxis: {
+			type: 'datetime',
+			gridLineWidth: 1,
+			title: {
+				text: '##caption.time##',
+				useHTML: true
+			}
+		},
+		yAxis: {
+			title: {
+				text: '##caption.watt##',
+				useHTML: true
+			},
+			min: 0
+		},
+		tooltip: {
+			headerFormat: '<b>{series.name}</b><br>',
+			pointFormat: '{point.x:%H:%M}: {point.y:.2f}'
+		},
+
+		series: []    
+	};
+	chart = new Highcharts.Chart(options);
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function pieChart() {
+	var options = {
+		chart: {
+			type: 'pie',
+			options3d: {
+				enabled: true,
+				alpha: 45
+			},
+			renderTo: 'container_pie',
+		},
+		title: {
+			text: ""
+		},
+		exporting: { enabled: false },
+		credits: { enabled: false },		
+		plotOptions: {
+			pie: {
+				innerSize: 20,
+				depth: 45,
+				dataLabels: {
+                enabled: false },
+				showInLegend: true	
+			}
+			
+		},
+		tooltip: {
+			pointFormat: '{point.y:.2f}##caption.kwh##'
+		},		
+		series: []
+
+	 
+	};
+	pie_chart = new Highcharts.Chart(options);	
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$('#radioForm input').on('change', function() {
+	chartType = $('input[name=charttype]:checked', '#radioForm').val();
+	drawChart( chartType );
+});
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function displayFacts() {
+	$.getJSON( file_facts, function( data ) {
+		$( "#jsunnyreports_this_dayyield" ).html( numeral(data.facts.today).format(format_kwh) );
+		$( "#jsunnyreports_historic_dayyield" ).html( numeral( data.facts.historic).format(format_kwh) );
+		$( "#jsunnyreports_total_yield" ).html( numeral( data.facts.total).format(format_kwh) );
+		$( "#jsunnyreports_this_monthyield" ).html( numeral( data.facts.thismonth).format(format_kwh) );	
+		$( "#jsunnyreports_last_monthyield" ).html( numeral( data.facts.lastmonth).format(format_kwh) );	
+		$( "#jsunnyreports_this_yearyield" ).html( numeral( data.facts.thisyear).format(format_kwh) );	
+		$( "#jsunnyreports_last_yearyield" ).html( numeral( data.facts.lastyear).format(format_kwh) );	
+		$( "#jsunnyreports_totalsavings" ).html( numeral( data.facts.totalsavings).format(format_currency) );	
+	});
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawChart( chartType ) {
+	theChart();
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		var fileName = data_jsr.last_active_day + "-" + data_jsr.last_active_month + "-" + data_jsr.last_active_year + ".json";
+		var url = jsunnyreports_jsonfiles_location + data_jsr.last_active_year + "/" + fileName;	
+		var title = data_jsr.last_active_day + "-" + data_jsr.last_active_month + "-" + data_jsr.last_active_year;
+		chart.setTitle({text: title });	
+		
+		while( chart.series.length > 0 ) {
+			chart.series[0].remove( true );
+		}
+		
+		if ( chartType == null ) { 
+			chartType = "watt";
+		}
+		
+		$.getJSON( url, function( day ) {
+
+			if ( chartType == "watt" ) {
+				   displayWattPerformance( day, false,  data_jsr.last_active_day, data_jsr.last_active_month, data_jsr.last_active_year );
+			}			
+			else if ( chartType == "kwh" ) {
+					displayKWhPerformance( day, false,  data_jsr.last_active_day, data_jsr.last_active_month, data_jsr.last_active_year );
+			}	
+			else {
+					displayWWpPerformance( day, false,  data_jsr.last_active_day, data_jsr.last_active_month, data_jsr.last_active_year );
+			}	
+		
+		
+		});
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function inverterTable() {
+	$( "#inverterTable" ).html( "" );
+
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		var fileName = data_jsr.last_active_day + "-" + data_jsr.last_active_month + "-" + data_jsr.last_active_year + ".json";
+		var url = jsunnyreports_jsonfiles_location + data_jsr.last_active_year + "/" + fileName;	
+		
+		$.getJSON( url, function( day ) {
+			for ( i=0;i<day.inverterdata.length; i++ ) {
+				var inverter = day.inverterdata[i];
+				
+				if ( inverter.show == 1 ) {
+					var theData = "";		
+					theData += "<tr>";
+					theData += "<td>";
+					theData += inverter.name;
+					theData += "</td>";
+					theData += "<td class=\"text-right\">";
+					theData += numeral(inverter.peakpower).format(format_watt);
+					theData += "</td>";		
+					theData += "<td class=\"text-right\">";
+					theData += numeral(inverter.now).format(format_watt);
+					theData += "</td>";		
+					theData += "<td class=\"text-right\">";
+					theData += numeral(inverter.kwh).format(format_kwh);
+					theData += "</td>";		
+					theData += "</tr>";
+					
+					$( "#inverterTable" ).append( theData );	
+				
+				}
+				
+			}	
+		});
+	});
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+function drawPieChart() {
+	pieChart();
+	while( pie_chart.series.length > 0 ) {
+		pie_chart.series[0].remove( true );
+	}	
+	
+	$.getJSON( file_jsunnyreports, function( data_jsr ) {
+		var fileName = data_jsr.last_active_day + "-" + data_jsr.last_active_month + "-" + data_jsr.last_active_year + ".json";
+		var url = jsunnyreports_jsonfiles_location + data_jsr.last_active_year + "/" + fileName;	
+		
+		$.getJSON( url, function( day ) {
+			
+			var series = {data: []}; 
+			series.name = "";
+			var pie_data_array = [];
+			var pie_colors_array = [];
+			
+			for ( i=0;i<day.inverterdata.length; i++ ) {
+				var inverter = day.inverterdata[i];
+				
+				if ( inverter.show == 1 ) {
+					var pie_data_item = [ inverter.name, inverter.kwh ];
+					var pie_color = rgbToHex( inverter.piecolor[0], inverter.piecolor[1], inverter.piecolor[2] );
+					
+					pie_data_array.push( pie_data_item );
+					pie_colors_array.push( pie_color );
+				}
+			}	
+			
+			series.data = pie_data_array;
+			series.colors = pie_colors_array;
+			
+			pie_chart.addSeries({                        
+					name: series.name,
+					data: series.data,
+					colors: series.colors
+				}, true);			
+		});
+	});	
+}	
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function () {
+    setInterval(function () {
+		displayHeader();
+    	displayFooter();
+		displayFacts();
+		drawChart();
+		drawPieChart();
+		inverterTable();
+    }, 300000);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------------------------------------------------------------------
+$(function() {
+	displayHeader();
+	displayFooter();
+	displayFacts();
+	drawChart();
+	drawPieChart();
+	inverterTable();
+});
