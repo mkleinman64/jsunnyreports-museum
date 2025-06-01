@@ -34,7 +34,7 @@ import nl.mk.jsunnyreports.geo.sun.luckycatlabs.sunrisesunset.dto.Location;
 
 
 /**
- * Calcule la position du soleil relativement �  la position de l'observateur.
+ * Calcule la position du soleil relativement �  la position de l'observateur.
  * Cette classe reçoit en entrés les coordonnées spatio-temporelles de
  * l'observateur, soit:
  *
@@ -123,7 +123,7 @@ public class SunRelativePosition {
     private double twilight = CIVIL_TWILIGHT;
 
     /**
-     * Heure �  laquelle le soleil est au plus haut dans la journée en millisecondes
+     * Heure �  laquelle le soleil est au plus haut dans la journée en millisecondes
      * écoulées depuis le 1er janvier 1970.
      */
     private long noonTime;
@@ -615,7 +615,7 @@ public class SunRelativePosition {
     }
 
     /**
-     * Retourne l'heure �  laquelle le soleil est au plus haut. L'heure est
+     * Retourne l'heure �  laquelle le soleil est au plus haut. L'heure est
      * retournée en nombre de millisecondes écoulées depuis le debut de la
      * journée (minuit) en heure UTC.
      */
@@ -627,9 +627,9 @@ public class SunRelativePosition {
     }
 
     /**
-     * Retourne la date �  laquelle le soleil est au plus haut dans la journée.
-     * Cette méthode est équivalente �  {@link #getNoonTime} mais inclue le jour
-     * de la date qui avait été spécifiée �  la méthode {@link #compute}.
+     * Retourne la date �  laquelle le soleil est au plus haut dans la journée.
+     * Cette méthode est équivalente �  {@link #getNoonTime} mais inclue le jour
+     * de la date qui avait été spécifiée �  la méthode {@link #compute}.
      */
     public Date getNoonDate() {
         if (!updated) {
@@ -639,7 +639,7 @@ public class SunRelativePosition {
     }
 
     /**
-     * Affiche la position du soleil �  la date et coordonnées spécifiée.
+     * Affiche la position du soleil �  la date et coordonnées spécifiée.
      * Cette application peut être lancée avec la syntaxe suivante:
      *
      * <pre>SunRelativePosition <var>[longitude]</var> <var>[latitude]</var> <var>[date]</var></pre>

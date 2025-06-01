@@ -77,11 +77,7 @@ public class JSONV2MonthRenderer extends JSONBaseRenderer implements JSONRendere
 
                         json.append("\"expected\": " + monthExpected + ",");
                         
-                        float kWhMonthPercentage = 0f;
-                        if ( monthExpected > 0f ) {
-                            kWhMonthPercentage = ( month.getkWh() / monthExpected ) * 100;    
-                        }    
-                        
+                        float kWhMonthPercentage = ( month.getkWh() / monthExpected ) * 100;
                         json.append("\"kwhpercentage\": " + kWhMonthPercentage + ",");
                         
                         
@@ -181,10 +177,7 @@ public class JSONV2MonthRenderer extends JSONBaseRenderer implements JSONRendere
                             json.append("\"dayexpected\": " + dayExpected + ",");
                             json.append("\"kwh\": " + day.getkWh() + ",");
                             
-                            float kWhPercentage = 0f;
-                            if ( dayExpected > 0f ) {
-                                kWhPercentage = ( day.getkWh() / dayExpected ) * 100;
-                            }    
+                            float kWhPercentage = ( day.getkWh() / dayExpected ) * 100;
 
                             json.append("\"kwhpercentage\": " + kWhPercentage + ",");
                             

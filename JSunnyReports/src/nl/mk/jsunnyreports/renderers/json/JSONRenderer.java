@@ -100,9 +100,6 @@ public class JSONRenderer {
 
             JSONRendererInterface jsonDaysYear = new JSONV2DaysYearRenderer( inverterData, inverters, settings, language );
             jsonDaysYear.doMagic();
-            
-            JSONRendererInterface jsonExportInfo = new JSONV2ExportInfoRenderer( inverterData, inverters, settings, language );
-            jsonExportInfo.doMagic();            
 
         }
 

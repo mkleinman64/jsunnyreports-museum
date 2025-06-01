@@ -138,10 +138,7 @@ public class JSONV2YearRenderer extends JSONBaseRenderer implements JSONRenderer
 
                     float monthExpected = inverters.getExpectedMonthYield(year.getYear(), month.getMonth());
                     
-                    float kwhPercentage = 0f;
-                    if ( monthExpected > 0f ) {
-                        kwhPercentage = ( month.getkWh() / monthExpected ) * 100;
-                    }
+                    float kwhPercentage = ( month.getkWh() / monthExpected ) * 100;
 
                     json.append("\"expected\": " + monthExpected + ",");
                     json.append("\"kwhpercentage\": " + kwhPercentage + ",");

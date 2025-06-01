@@ -366,15 +366,15 @@ public class Settings {
     }
 
     public boolean isShowExpected() {
-        return true;
+        return showExpected;
     }
 
     public boolean isShowAverage() {
-        return true;
+        return showAverage;
     }
 
     public boolean isShowPreviousYear() {
-        return true;
+        return showPreviousYear;
     }
 
     public MonthList getMonthPercentageList() {
@@ -386,7 +386,7 @@ public class Settings {
     }
 
     public boolean isShowMovingAverage() {
-        return true;
+        return showMovingAverage;
     }
 
     public int getCacheRetain() {

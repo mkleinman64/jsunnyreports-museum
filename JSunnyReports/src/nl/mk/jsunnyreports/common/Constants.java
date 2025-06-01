@@ -21,13 +21,13 @@ public final class Constants {
     }
 
     private static final byte major = 2;
-    private static final byte minor = 9;
-    private static final byte fix = 5;
-    private static final String G_BUILD = "custom";
+    private static final byte minor = 7;
+    private static final byte fix = 2;
+    private static final String G_BUILD = "alpha";
     
     private static final String G_VERSION = major + "." + minor + "." + fix + " " + G_BUILD;
-    private static final String G_DATE = "14-03-2024";
-    private static final String G_COPYRIGHT = "2009-2024, Martin Kleinman";
+    private static final String G_DATE = "15-03-2021";
+    private static final String G_COPYRIGHT = "2009-2021, Martin Kleinman";
     private static final String G_WEBSITE_URL = "http://www.jsunnyreports.com";
     private static final String G_APP_NAME = "jSunnyReports";
 
